@@ -1,0 +1,8 @@
+ID;document;description;netAmount;quantity;unitPrice;materialNumber;SupplierMterialNumber;SupplierQuantity;SupplierUnitOfMeasure;SupplierMaterialDesc;SupplierPartNumber;unitOfMeasure;purchaseOrders_ID
+2637be0d-c4c1-4fb6-9645-c5be831bbf45;PO12345;Laptop;1200.00;;120.00;MAT123;SUPMAT123;;PCS;Laptop Model X;SP123;PCS;5ec22027-f6d9-4b77-b7cc-47ec976c3e0f
+bb6002eb-e8d1-4e28-95b8-8b605d2f4894;PO12346;Office Chair;500.50;;100.10;MAT124;SUPMAT124;;PCS;Ergonomic Office Chair;SP124;PCS;30b54085-864c-44f5-b53b-d48539a10623
+64c2843a-ae17-46a4-8ac0-b7323b3c203b;PO12347;Printer;800.75;;400.38;MAT125;SUPMAT125;;PCS;Laser Printer;SP125;PCS;50b47222-dee0-4ca5-98c5-842ae6b17da5
+3f483cee-ee6c-41ef-bbee-8dd7353adc94;PO12348;Desk;600.00;;200.00;MAT126;SUPMAT126;;PCS;Wooden Desk;SP126;PCS;18bda297-15de-4552-a683-4fa5b1e5a275
+b01eb29b-e3af-42e4-a386-73de20c2bf32;PO12349;Monitor;900.25;;225.06;MAT127;SUPMAT127;;PCS;4K Monitor;SP127;PCS;1892c792-9415-4fb2-98e5-c0567f01697d
+85ffd1e6-fac3-4488-801f-1d655fa22234;PO12345;Keyboard;300.00;;20.00;MAT128;SUPMAT128;;PCS;Mechanical Keyboard;SP128;PCS;5ec22027-f6d9-4b77-b7cc-47ec976c3e0f
+69bf04d1-b690-46db-90eb-129f4cefc477;PO12346;Mouse;200.50;;10.03;MAT129;SUPMAT129;;PCS;Wireless Mouse;SP129;PCS;30b54085-864c-44f5-b53b-d48539a10623

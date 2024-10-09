@@ -1,0 +1,411 @@
+{
+    "namespace": "shippingregister",
+    "entities": [
+        {
+            "name": "PurchaseOrders",
+            "label": "Purchase Order",
+            "associations": [
+                {
+                    "name": "Items",
+                    "target": "PurchaseOrderLineItems",
+                    "multiplicity": "many",
+                    "backAssociation": "purchaseOrders"
+                },
+                {
+                    "name": "POorders",
+                    "target": "SupplierInvoices",
+                    "multiplicity": "many",
+                    "backAssociation": "purchaseOrders"
+                }
+            ],
+            "labelPlural": "Purchase Orders",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "OrderNumber",
+                    "type": "String(20)",
+                    "label": "Order Number",
+                    "additionalInfo": "Order number for the purchase order",
+                    "essentialElement": true
+                },
+                {
+                    "name": "OrderDate",
+                    "type": "Date",
+                    "label": "Order Date",
+                    "additionalInfo": "Date when the order was placed",
+                    "essentialElement": true
+                },
+                {
+                    "name": "TotalAmount",
+                    "type": "Decimal",
+                    "label": "Total Amount",
+                    "additionalInfo": "Total amount for the purchase order",
+                    "essentialElement": true
+                },
+                {
+                    "name": "Currency",
+                    "type": "String",
+                    "label": "Currency",
+                    "additionalInfo": "Currency for the total amount",
+                    "essentialElement": true
+                },
+                {
+                    "name": "Status",
+                    "type": "String(20)",
+                    "label": "Status",
+                    "additionalInfo": "Status of the purchase order",
+                    "essentialElement": true
+                }
+            ]
+        },
+        {
+            "name": "Suppliers",
+            "label": "Supplier",
+            "associations": [],
+            "labelPlural": "Suppliers",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "Name",
+                    "type": "String(100)",
+                    "label": "Name",
+                    "additionalInfo": "Name of the supplier",
+                    "essentialElement": true
+                },
+                {
+                    "name": "TaxId",
+                    "type": "String(20)",
+                    "label": "Tax Id",
+                    "additionalInfo": "Tax ID of the supplier",
+                    "essentialElement": true
+                },
+                {
+                    "name": "Address",
+                    "type": "String(200)",
+                    "label": "Address",
+                    "additionalInfo": "Address of the supplier",
+                    "essentialElement": true
+                },
+                {
+                    "name": "ContactPerson",
+                    "type": "String(100)",
+                    "label": "Contact Person",
+                    "additionalInfo": "Contact person at the supplier",
+                    "essentialElement": true
+                },
+                {
+                    "name": "Email",
+                    "type": "String(100)",
+                    "label": "Email",
+                    "additionalInfo": "Email address of the supplier",
+                    "essentialElement": true
+                },
+                {
+                    "name": "PhoneNumber",
+                    "type": "String(20)",
+                    "label": "Phone Number",
+                    "additionalInfo": "Phone number of the supplier",
+                    "essentialElement": true
+                }
+            ]
+        },
+        {
+            "name": "PurchaseOrderLineItems",
+            "label": "Purchase Order Line Item",
+            "associations": [
+                {
+                    "name": "purchaseOrders",
+                    "target": "PurchaseOrders",
+                    "multiplicity": "one",
+                    "isComposition": false
+                }
+            ],
+            "labelPlural": "Purchase Order Line Items",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "document",
+                    "type": "String",
+                    "label": "Document",
+                    "additionalInfo": "Association to PurchaseOrders",
+                    "essentialElement": true
+                },
+                {
+                    "name": "description",
+                    "type": "String(200)",
+                    "label": "Description",
+                    "additionalInfo": "Description of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "netAmount",
+                    "type": "Decimal",
+                    "label": "Net Amount",
+                    "additionalInfo": "Net amount for the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "quantity",
+                    "type": "Decimal",
+                    "label": "Quantity",
+                    "additionalInfo": "Quantity of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "unitPrice",
+                    "type": "Decimal",
+                    "label": "Unit Price",
+                    "additionalInfo": "Unit price of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "materialNumber",
+                    "type": "String(50)",
+                    "label": "Material Number",
+                    "additionalInfo": "Material number of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierMterialNumber",
+                    "type": "String(50)",
+                    "label": "Supplier Mterial Number",
+                    "additionalInfo": "Supplier material number of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierQuantity",
+                    "type": "Decimal",
+                    "label": "Supplier Quantity",
+                    "additionalInfo": "Supplier quantity of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierUnitOfMeasure",
+                    "type": "String(10)",
+                    "label": "Supplier Unit Of Measure",
+                    "additionalInfo": "Supplier unit of measure of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierMaterialDesc",
+                    "type": "String(50)",
+                    "label": "Supplier Material Desc",
+                    "additionalInfo": "Supplier material description of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierPartNumber",
+                    "type": "String(50)",
+                    "label": "Supplier Part Number",
+                    "additionalInfo": "Supplier part number of the line item",
+                    "essentialElement": true
+                },
+                {
+                    "name": "unitOfMeasure",
+                    "type": "String(10)",
+                    "label": "Unit Of Measure",
+                    "additionalInfo": "Unit of measure of the line item",
+                    "essentialElement": true
+                }
+            ]
+        },
+        {
+            "name": "SupplierInvoices",
+            "label": "Supplier Invoice",
+            "associations": [
+                {
+                    "name": "purchaseOrders",
+                    "target": "PurchaseOrders",
+                    "multiplicity": "one",
+                    "isComposition": false
+                },
+                {
+                    "name": "Supplier",
+                    "target": "Suppliers",
+                    "multiplicity": "one",
+                    "isComposition": false
+                }
+            ],
+            "labelPlural": "Supplier Invoices",
+            "elements": [
+                {
+                    "name": "ID",
+                    "type": "UUID",
+                    "key": true,
+                    "label": ""
+                },
+                {
+                    "name": "SystemID",
+                    "type": "Integer",
+                    "label": "System ID",
+                    "additionalInfo": "System ID for the supplier invoice",
+                    "essentialElement": true
+                },
+                {
+                    "name": "SupplierInvoiceNumber",
+                    "type": "String(20)",
+                    "label": "Supplier Invoice Number",
+                    "additionalInfo": "Supplier invoice number",
+                    "essentialElement": true
+                }
+            ]
+        }
+    ],
+    "service": {
+        "name": "shippingregisterSrv",
+        "path": "srv/service.cds"
+    },
+    "applications": [
+        {
+            "pages": [
+                {
+                    "type": "ListReport",
+                    "entityType": "PurchaseOrders",
+                    "listReportContent": {
+                        "loadDataOnAppLaunch": "Enabled",
+                        "tables": [
+                            {
+                                "title": "Purchase Orders",
+                                "id": "PurchaseOrdersTable",
+                                "baseEntityType": "PurchaseOrders",
+                                "columns": [
+                                    "OrderNumber",
+                                    "OrderDate",
+                                    "TotalAmount",
+                                    "Currency",
+                                    "Status"
+                                ]
+                            }
+                        ],
+                        "filters": [
+                            "OrderNumber",
+                            "OrderDate",
+                            "Status"
+                        ]
+                    }
+                },
+                {
+                    "type": "ObjectPage",
+                    "entityType": "PurchaseOrders",
+                    "objectPageContent": {
+                        "tableSectionAssociations": [
+                            "Items",
+                            "POorders"
+                        ],
+                        "sections": [
+                            {
+                                "title": "Purchase Order Details",
+                                "id": "PurchaseOrderDetails",
+                                "fields": [
+                                    "OrderNumber",
+                                    "OrderDate",
+                                    "TotalAmount",
+                                    "Currency",
+                                    "Status"
+                                ]
+                            },
+                            {
+                                "title": "Purchase Order Line Items",
+                                "id": "PurchaseOrderLineItems",
+                                "isTableSection": true,
+                                "fields": [
+                                    "Items/document",
+                                    "Items/description",
+                                    "Items/netAmount",
+                                    "Items/quantity",
+                                    "Items/unitPrice",
+                                    "Items/materialNumber",
+                                    "Items/SupplierMterialNumber",
+                                    "Items/SupplierQuantity",
+                                    "Items/SupplierUnitOfMeasure",
+                                    "Items/SupplierMaterialDesc",
+                                    "Items/SupplierPartNumber",
+                                    "Items/unitOfMeasure"
+                                ]
+                            },
+                            {
+                                "title": "Supplier Invoices",
+                                "id": "SupplierInvoices",
+                                "isTableSection": true,
+                                "fields": [
+                                    "POorders/SystemID",
+                                    "POorders/SupplierInvoiceNumber"
+                                ]
+                            }
+                        ],
+                        "tabs": [
+                            {
+                                "title": "General",
+                                "id": "GeneralTab",
+                                "subsections": [
+                                    "PurchaseOrderDetails"
+                                ]
+                            },
+                            {
+                                "title": "Line Items",
+                                "id": "LineItemsTab",
+                                "subsections": [
+                                    "PurchaseOrderLineItems"
+                                ]
+                            },
+                            {
+                                "title": "Invoices",
+                                "id": "InvoicesTab",
+                                "subsections": [
+                                    "SupplierInvoices"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ObjectPage",
+                    "entityType": "SupplierInvoices",
+                    "objectPageContent": {
+                        "tableSectionAssociations": [],
+                        "sections": [
+                            {
+                                "title": "Purchase Order Line Items",
+                                "id": "PurchaseOrderLineItemsSection",
+                                "isTableSection": true,
+                                "fields": []
+                            },
+                            {
+                                "title": "Supplier Invoices",
+                                "id": "SupplierInvoicesSection",
+                                "isTableSection": true,
+                                "fields": []
+                            }
+                        ],
+                        "tabs": [
+                            {
+                                "title": "Purchase Order Details",
+                                "id": "PurchaseOrderDetailsTab",
+                                "subsections": [
+                                    "PurchaseOrderLineItemsSection",
+                                    "SupplierInvoicesSection"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ],
+            "name": "purchaseOrderApp"
+        }
+    ]
+}

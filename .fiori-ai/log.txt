@@ -1,0 +1,1378 @@
+2024-10-09T14:20:09.291Z [info] Project generation uses model: "gpt-4o", version: "latest"
+2024-10-09T14:20:09.291Z [info] 1/8: Generate CAP model via LLM
+2024-10-09T14:20:14.615Z [info] 
+==========LLM call for step "extractAppSkeleton":==========
+You help the user building a Fiori Elements application described in the user input.
+
+A Fiori Elements application typically starts with a ListReport page showing the data of the base entity of the application in a table.
+Details of a specific table row are shown in the ObjectPage. This first ObjectPage is therefore based on the base entity of the application.
+An ObjectPage can contain one or more table sections based on to-many associations of its entity type.
+The details of a table section row can be shown in an another ObjectPage based on the associations target entity.
+
+Your task is to find the entities (with their to-many associations) as well as the ObjectPages (with the to-many associations they use in table sections) described in the user input below.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "entities": {
+      "type": "array",
+      "description": "Define all entities and their to-many associations; entity properties will be determined later",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "UpperCamelCase, no spaces, plural, e.g. 'Orders'"
+          },
+          "label": {
+            "type": "string",
+            "description": "max two words, singular"
+          },
+          "associations": {
+            "type": "array",
+            "description": "Define to-many associations between entities",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "Points to existing entity, value is entities.name"
+                }
+              },
+              "required": [
+                "name",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "labelPlural": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "label",
+          "associations",
+          "labelPlural"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "baseEntity": {
+      "type": "string",
+      "description": "base entity of ListReport page (if present) and first ObjectPage"
+    },
+    "noListReportPage": {
+      "type": "boolean",
+      "description": "true: no ListReport page will generated, e.g. for applications which start with an (input enabled) Object Page to enter data"
+    },
+    "objectPages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "description": "Entity that the ObjectPage is based on, the first ObjectPage is always based on base entity"
+          },
+          "tableSectionsAssociations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "to-many associations of page entity for table sections shown in the ObjectPage"
+          }
+        },
+        "required": [
+          "entityType"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "namespace": {
+      "type": "string",
+      "description": "lowerCamelCase, no spaces allowed"
+    },
+    "applicationName": {
+      "type": "string",
+      "description": "lowerCamelCase, no spaces allowed"
+    },
+    "userInputKind": {
+      "enum": [
+        "UserInterfaceFirst",
+        "DataModelFirst"
+      ],
+      "description": "use 'UserInterfaceFirst' if User input describes the app based on the user interface, i.e. how List Report and Object Pages should look like; use 'DataModelFirst' if User input describes the app based on its data model, i.e. its entities, their elements and associations"
+    }
+  },
+  "required": [
+    "entities",
+    "baseEntity",
+    "objectPages",
+    "namespace",
+    "applicationName",
+    "userInputKind"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+Generate an SAP Fiori elements application based on schema.cds
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "entities": [
+    {
+      "name": "PurchaseOrders",
+      "label": "Purchase Order",
+      "associations": [
+        {
+          "name": "Items",
+          "target": "PurchaseOrderLineItems"
+        },
+        {
+          "name": "POorders",
+          "target": "SupplierInvoices"
+        }
+      ],
+      "labelPlural": "Purchase Orders"
+    },
+    {
+      "name": "Suppliers",
+      "label": "Supplier",
+      "associations": [],
+      "labelPlural": "Suppliers"
+    },
+    {
+      "name": "PurchaseOrderLineItems",
+      "label": "Purchase Order Line Item",
+      "associations": [],
+      "labelPlural": "Purchase Order Line Items"
+    },
+    {
+      "name": "SupplierInvoices",
+      "label": "Supplier Invoice",
+      "associations": [
+        {
+          "name": "PurchaseOrder",
+          "target": "PurchaseOrders"
+        }
+      ],
+      "labelPlural": "Supplier Invoices"
+    }
+  ],
+  "baseEntity": "PurchaseOrders",
+  "noListReportPage": false,
+  "objectPages": [
+    {
+      "entityType": "PurchaseOrders",
+      "tableSectionsAssociations": [
+        "Items",
+        "POorders"
+      ]
+    },
+    {
+      "entityType": "SupplierInvoices",
+      "tableSectionsAssociations": []
+    }
+  ],
+  "namespace": "shippingregister",
+  "applicationName": "purchaseOrderApp",
+  "userInputKind": "DataModelFirst"
+}
+```
+2024-10-09T14:20:14.616Z [info] Step "switchBasedOnAppSkeleton": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[0]" : [{"type":"ListReport","entityType":"PurchaseOrders"}]
+2024-10-09T14:20:14.616Z [info] Step "switchBasedOnAppSkeleton": case 1 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[0].type" : ["ListReport"]
+2024-10-09T14:20:14.616Z [info] Step "switchBasedOnAppSkeleton": case 2 passed! Evaluation details:
+ - JSONPath "$.userInput.imageCount" : [0]
+2024-10-09T14:20:14.616Z [info] Step "runDataModelFirst": workflow "givenSkeletonExtractDataModelFirst" started
+"
+2024-10-09T14:20:38.950Z [info] 
+==========LLM call for step "extractEntitiesProperties":==========
+You help the user refining the DataModel for a Fiori Elements application described in the user input.
+
+The DataModel consists of the following entities and associations:
+- entity "PurchaseOrders" (with to-many associations to "PurchaseOrderLineItems" and "SupplierInvoices")
+- entity "Suppliers"
+- entity "PurchaseOrderLineItems" (with to-one association to "PurchaseOrders")
+- entity "SupplierInvoices" (with to-one association to "PurchaseOrders")
+
+Your task is to find the properties for each entity.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "entityName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "camelCase, no spaces"
+          },
+          "type": {
+            "type": "string",
+            "description": "Allowed values: String(50), Boolean, Integer, Decimal, Double, Date, Time, DateTime, Timestamp; String length can vary - i.e. String(20)"
+          },
+          "key": {
+            "type": "boolean",
+            "description": "max. one optional key per entity, only if this element is a semantic key and can uniquely identify the instance"
+          },
+          "essentialElement": {
+            "type": "boolean",
+            "description": "'true' only if element is marked as essential'"
+          },
+          "additionalInfo": {
+            "type": "string",
+            "description": "All additional information from user input, e.g. user description, example values; also consider referenced parts in the user input"
+          }
+        },
+        "required": [
+          "entityName",
+          "name",
+          "type",
+          "additionalInfo"
+        ],
+        "additionalProperties": false
+      },
+      "description": "At least 5 realistic elements (unless explicitly specified)"
+    }
+  },
+  "required": [
+    "elements"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+Generate an SAP Fiori elements application based on schema.cds
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "elements": [
+    {
+      "entityName": "PurchaseOrders",
+      "name": "ID",
+      "type": "UUID",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for Purchase Orders"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "OrderNumber",
+      "type": "String(20)",
+      "essentialElement": true,
+      "additionalInfo": "Order number for the purchase order"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "OrderDate",
+      "type": "Date",
+      "essentialElement": true,
+      "additionalInfo": "Date when the order was placed"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "TotalAmount",
+      "type": "Decimal(15, 2)",
+      "essentialElement": true,
+      "additionalInfo": "Total amount for the purchase order"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "Currency",
+      "type": "Currency",
+      "essentialElement": true,
+      "additionalInfo": "Currency for the total amount"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "Status",
+      "type": "String(20)",
+      "essentialElement": true,
+      "additionalInfo": "Status of the purchase order"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "Items",
+      "type": "Composition of many PurchaseOrderLineItems",
+      "essentialElement": true,
+      "additionalInfo": "Association to PurchaseOrderLineItems"
+    },
+    {
+      "entityName": "PurchaseOrders",
+      "name": "POorders",
+      "type": "Association to SupplierInvoices",
+      "essentialElement": true,
+      "additionalInfo": "Association to SupplierInvoices"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "ID",
+      "type": "UUID",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for Suppliers"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "Name",
+      "type": "String(100)",
+      "essentialElement": true,
+      "additionalInfo": "Name of the supplier"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "TaxId",
+      "type": "String(20)",
+      "essentialElement": true,
+      "additionalInfo": "Tax ID of the supplier"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "Address",
+      "type": "String(200)",
+      "essentialElement": true,
+      "additionalInfo": "Address of the supplier"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "ContactPerson",
+      "type": "String(100)",
+      "essentialElement": true,
+      "additionalInfo": "Contact person at the supplier"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "Email",
+      "type": "String(100)",
+      "essentialElement": true,
+      "additionalInfo": "Email address of the supplier"
+    },
+    {
+      "entityName": "Suppliers",
+      "name": "PhoneNumber",
+      "type": "String(20)",
+      "essentialElement": true,
+      "additionalInfo": "Phone number of the supplier"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "ID",
+      "type": "UUID",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for Purchase Order Line Items"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "document",
+      "type": "Association to PurchaseOrders",
+      "essentialElement": true,
+      "additionalInfo": "Association to PurchaseOrders"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "description",
+      "type": "String(200)",
+      "essentialElement": true,
+      "additionalInfo": "Description of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "netAmount",
+      "type": "Decimal(15, 2)",
+      "essentialElement": true,
+      "additionalInfo": "Net amount for the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "quantity",
+      "type": "Decimal(10, 2)",
+      "essentialElement": true,
+      "additionalInfo": "Quantity of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "unitPrice",
+      "type": "Decimal(15, 2)",
+      "essentialElement": true,
+      "additionalInfo": "Unit price of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "materialNumber",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Material number of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "SupplierMterialNumber",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier material number of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "SupplierQuantity",
+      "type": "Decimal(10, 2)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier quantity of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "SupplierUnitOfMeasure",
+      "type": "String(10)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier unit of measure of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "SupplierMaterialDesc",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier material description of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "SupplierPartNumber",
+      "type": "String(50)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier part number of the line item"
+    },
+    {
+      "entityName": "PurchaseOrderLineItems",
+      "name": "unitOfMeasure",
+      "type": "String(10)",
+      "essentialElement": true,
+      "additionalInfo": "Unit of measure of the line item"
+    },
+    {
+      "entityName": "SupplierInvoices",
+      "name": "ID",
+      "type": "UUID",
+      "key": true,
+      "essentialElement": true,
+      "additionalInfo": "Unique identifier for Supplier Invoices"
+    },
+    {
+      "entityName": "SupplierInvoices",
+      "name": "SystemID",
+      "type": "Integer",
+      "essentialElement": true,
+      "additionalInfo": "System ID for the supplier invoice"
+    },
+    {
+      "entityName": "SupplierInvoices",
+      "name": "SupplierInvoiceNumber",
+      "type": "String(20)",
+      "essentialElement": true,
+      "additionalInfo": "Supplier invoice number"
+    },
+    {
+      "entityName": "SupplierInvoices",
+      "name": "Supplier",
+      "type": "Association to Suppliers",
+      "essentialElement": true,
+      "additionalInfo": "Association to Suppliers"
+    },
+    {
+      "entityName": "SupplierInvoices",
+      "name": "PurchaseOrder",
+      "type": "Composition of many PurchaseOrders",
+      "essentialElement": true,
+      "additionalInfo": "Association to PurchaseOrders"
+    }
+  ]
+}
+```
+2024-10-09T14:20:48.442Z [info] 
+==========LLM call for step "extractPropertyDetails":==========
+Here is a list of properties with name and description:
+
+PurchaseOrders_OrderNumber: Order number for the purchase order
+PurchaseOrders_OrderDate: Date when the order was placed
+PurchaseOrders_TotalAmount: Total amount for the purchase order
+PurchaseOrders_Currency: Currency for the total amount
+PurchaseOrders_Status: Status of the purchase order
+Suppliers_Name: Name of the supplier
+Suppliers_TaxId: Tax ID of the supplier
+Suppliers_Address: Address of the supplier
+Suppliers_ContactPerson: Contact person at the supplier
+Suppliers_Email: Email address of the supplier
+Suppliers_PhoneNumber: Phone number of the supplier
+PurchaseOrderLineItems_document: Association to PurchaseOrders
+PurchaseOrderLineItems_description: Description of the line item
+PurchaseOrderLineItems_netAmount: Net amount for the line item
+PurchaseOrderLineItems_quantity: Quantity of the line item
+PurchaseOrderLineItems_unitPrice: Unit price of the line item
+PurchaseOrderLineItems_materialNumber: Material number of the line item
+PurchaseOrderLineItems_SupplierMterialNumber: Supplier material number of the line item
+PurchaseOrderLineItems_SupplierQuantity: Supplier quantity of the line item
+PurchaseOrderLineItems_SupplierUnitOfMeasure: Supplier unit of measure of the line item
+PurchaseOrderLineItems_SupplierMaterialDesc: Supplier material description of the line item
+PurchaseOrderLineItems_SupplierPartNumber: Supplier part number of the line item
+PurchaseOrderLineItems_unitOfMeasure: Unit of measure of the line item
+SupplierInvoices_SystemID: System ID for the supplier invoice
+SupplierInvoices_SupplierInvoiceNumber: Supplier invoice number
+
+For each property analyze the description.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "properties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "All values mentioned in the description. Those could be possible values or example values. Don't make up or invent any values"
+          },
+          "hasFixedValuesList": {
+            "type": "boolean",
+            "description": "Only limited list of values expected, e.g. elements representing types, statuses, categories, units, organizations"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "properties"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+----------Response:----------
+```json
+{
+  "properties": [
+    {
+      "name": "PurchaseOrders_OrderNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrders_OrderDate",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrders_TotalAmount",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrders_Currency",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrders_Status",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_Name",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_TaxId",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_Address",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_ContactPerson",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_Email",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "Suppliers_PhoneNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_document",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_description",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_netAmount",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_quantity",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_unitPrice",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_materialNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_SupplierMterialNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_SupplierQuantity",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_SupplierUnitOfMeasure",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_SupplierMaterialDesc",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_SupplierPartNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "PurchaseOrderLineItems_unitOfMeasure",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "SupplierInvoices_SystemID",
+      "values": [],
+      "hasFixedValuesList": false
+    },
+    {
+      "name": "SupplierInvoices_SupplierInvoiceNumber",
+      "values": [],
+      "hasFixedValuesList": false
+    }
+  ]
+}
+```
+2024-10-09T14:20:48.443Z [info] Step "switchSimpleOrComplexApp": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.applications[0].pages[2]" : [{"type":"ObjectPage","entityType":"SupplierInvoices","objectPageContent":{"tableSectionAssociations":[]}}]
+ - JSONPath "$.userInput.lineCount" : [1]
+2024-10-09T14:20:48.443Z [info] Step "switchSimpleOrComplexApp": no condition met - running default steps
+2024-10-09T14:20:48.443Z [info] Step "runFlowForComplexApp": workflow "givenSkeletonExtractComplexApp" started
+"
+2024-10-09T14:20:48.443Z [info] Step "classifyByPages" SKIPPED (5 lines or less):
+Generate an SAP Fiori elements application based on schema.cds
+
+2024-10-09T14:20:48.444Z [info] Step "loopOverPages": looping over 3 entries
+"
+2024-10-09T14:20:48.444Z [info] Step "loopOverPages" index 0: pageType=ListReport, entityType=PurchaseOrders
+2024-10-09T14:20:48.444Z [info] Step "ifListReportPage": case 0 passed! Evaluation details:
+ - Variable "pageType" : "ListReport"
+2024-10-09T14:20:50.861Z [info] 
+==========LLM call for step "extractListReport":==========
+A Fiori Elements Application has the following pages:
+ - ListReport page for "PurchaseOrders"
+ - ObjectPage for "PurchaseOrders"
+ - ObjectPage for "SupplierInvoices"
+
+Available entities with their associations and elements are:
+Entity "PurchaseOrders"
+   Properties:
+       OrderNumber: Order number for the purchase order
+       OrderDate: Date when the order was placed
+       TotalAmount: Total amount for the purchase order
+       Currency: Currency for the total amount
+       Status: Status of the purchase order
+   Associations:
+       Items: association to many entities PurchaseOrderLineItems
+       POorders: association to many entities SupplierInvoices
+Entity "Suppliers"
+   Properties:
+       Name: Name of the supplier
+       TaxId: Tax ID of the supplier
+       Address: Address of the supplier
+       ContactPerson: Contact person at the supplier
+       Email: Email address of the supplier
+       PhoneNumber: Phone number of the supplier
+Entity "PurchaseOrderLineItems"
+   Properties:
+       document: Association to PurchaseOrders
+       description: Description of the line item
+       netAmount: Net amount for the line item
+       quantity: Quantity of the line item
+       unitPrice: Unit price of the line item
+       materialNumber: Material number of the line item
+       SupplierMterialNumber: Supplier material number of the line item
+       SupplierQuantity: Supplier quantity of the line item
+       SupplierUnitOfMeasure: Supplier unit of measure of the line item
+       SupplierMaterialDesc: Supplier material description of the line item
+       SupplierPartNumber: Supplier part number of the line item
+       unitOfMeasure: Unit of measure of the line item
+   Associations:
+       purchaseOrders: association to single entity PurchaseOrders
+Entity "SupplierInvoices"
+   Properties:
+       SystemID: System ID for the supplier invoice
+       SupplierInvoiceNumber: Supplier invoice number
+   Associations:
+       purchaseOrders: association to single entity PurchaseOrders
+       Supplier: association to single entity Suppliers
+
+The user input below describes the details of the ListReport page (i.e. its filters, tables or views with their columns).
+
+Your task is to help the user defining the ListReport page.
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "loadDataOnAppLaunch": {
+      "type": "string",
+      "enum": [
+        "Auto",
+        "Disabled",
+        "Enabled"
+      ],
+      "description": "'Auto': no explicit user input to load the data after start or an explicit user input to set InitialLoad for table to Auto; 'Disabled': An initial load of data does not occur at app start and the user has to actively click the Go button;  'Enabled': An initial load of data occurs automatically after start  (list is visible without pressing the GO Button)."
+    },
+    "tables": {
+      "type": "array",
+      "description": "tables (views) expected in user input",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "baseEntityType": {
+            "type": "string",
+            "description": "base entity type for the table"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPaths for columns"
+          }
+        },
+        "required": [
+          "title",
+          "baseEntityType",
+          "columns"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "filters": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "propertyPaths for filters specified in user input. If not specified, empty array"
+    }
+  },
+  "required": [
+    "tables"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+Generate an SAP Fiori elements application based on schema.cds
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "loadDataOnAppLaunch": "Enabled",
+  "tables": [
+    {
+      "title": "Purchase Orders",
+      "id": "PurchaseOrdersTable",
+      "baseEntityType": "PurchaseOrders",
+      "columns": [
+        "OrderNumber",
+        "OrderDate",
+        "TotalAmount",
+        "Currency",
+        "Status"
+      ]
+    }
+  ],
+  "filters": [
+    "OrderNumber",
+    "OrderDate",
+    "Status"
+  ]
+}
+```
+2024-10-09T14:20:50.862Z [info] Step "loopOverPages" index 1: pageType=ObjectPage, entityType=PurchaseOrders
+2024-10-09T14:20:50.862Z [info] Step "ifListReportPage": case 0 blocked! Evaluation details:
+ - Variable "pageType" : "ObjectPage"
+2024-10-09T14:20:50.862Z [info] Step "ifListReportPage": no condition met - running default steps
+2024-10-09T14:20:55.937Z [info] 
+==========LLM call for step "extractSingleObjectPageOfMany":==========
+The user input below describes a Fiori Elements Application with the following pages:
+ - ListReport page for "PurchaseOrders"
+ - ObjectPage for "PurchaseOrders"
+ - ObjectPage for "SupplierInvoices"
+
+Your task is to find the details of the ObjectPage for "PurchaseOrders".
+The base entity of the ObjectPage is PurchaseOrders.
+This ObjectPage can contain tabs and/or sections which in turn contain tables and fields.
+It must contain table sections containing data for:
+ - associated entity "PurchaseOrderLineItems" (via association Items)
+ - associated entity "SupplierInvoices" (via association POorders);
+
+The underlying data model allows the following propertyPaths:
+ - OrderNumber: Order Number (of Purchase Order)
+ - OrderDate: Order Date (of Purchase Order)
+ - TotalAmount: Total Amount (of Purchase Order)
+ - Currency: Currency (of Purchase Order)
+ - Status: Status (of Purchase Order)
+ - Items/document: Document (of many associated Purchase Order Line Item)
+ - Items/description: Description (of many associated Purchase Order Line Item)
+ - Items/netAmount: Net Amount (of many associated Purchase Order Line Item)
+ - Items/quantity: Quantity (of many associated Purchase Order Line Item)
+ - Items/unitPrice: Unit Price (of many associated Purchase Order Line Item)
+ - Items/materialNumber: Material Number (of many associated Purchase Order Line Item)
+ - Items/SupplierMterialNumber: Supplier Mterial Number (of many associated Purchase Order Line Item)
+ - Items/SupplierQuantity: Supplier Quantity (of many associated Purchase Order Line Item)
+ - Items/SupplierUnitOfMeasure: Supplier Unit Of Measure (of many associated Purchase Order Line Item)
+ - Items/SupplierMaterialDesc: Supplier Material Desc (of many associated Purchase Order Line Item)
+ - Items/SupplierPartNumber: Supplier Part Number (of many associated Purchase Order Line Item)
+ - Items/unitOfMeasure: Unit Of Measure (of many associated Purchase Order Line Item)
+ - POorders/SystemID: System ID (of many associated Supplier Invoice)
+ - POorders/SupplierInvoiceNumber: Supplier Invoice Number (of many associated Supplier Invoice)
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isTableSection": {
+            "type": "boolean",
+            "description": "if true, 'fields' represent columns of the table section and propertyPaths need to start with 1:n association"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPath"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "fields"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of sections ids relevant for the tab"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "subsections"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "sections",
+    "tabs"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+Generate an SAP Fiori elements application based on schema.cds
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "sections": [
+    {
+      "title": "Purchase Order Details",
+      "id": "PurchaseOrderDetails",
+      "fields": [
+        "OrderNumber",
+        "OrderDate",
+        "TotalAmount",
+        "Currency",
+        "Status"
+      ]
+    },
+    {
+      "title": "Purchase Order Line Items",
+      "id": "PurchaseOrderLineItems",
+      "isTableSection": true,
+      "fields": [
+        "Items/document",
+        "Items/description",
+        "Items/netAmount",
+        "Items/quantity",
+        "Items/unitPrice",
+        "Items/materialNumber",
+        "Items/SupplierMterialNumber",
+        "Items/SupplierQuantity",
+        "Items/SupplierUnitOfMeasure",
+        "Items/SupplierMaterialDesc",
+        "Items/SupplierPartNumber",
+        "Items/unitOfMeasure"
+      ]
+    },
+    {
+      "title": "Supplier Invoices",
+      "id": "SupplierInvoices",
+      "isTableSection": true,
+      "fields": [
+        "POorders/SystemID",
+        "POorders/SupplierInvoiceNumber"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "General",
+      "id": "GeneralTab",
+      "subsections": [
+        "PurchaseOrderDetails"
+      ]
+    },
+    {
+      "title": "Line Items",
+      "id": "LineItemsTab",
+      "subsections": [
+        "PurchaseOrderLineItems"
+      ]
+    },
+    {
+      "title": "Invoices",
+      "id": "InvoicesTab",
+      "subsections": [
+        "SupplierInvoices"
+      ]
+    }
+  ]
+}
+```
+2024-10-09T14:20:55.938Z [info] Step "loopOverPages" index 2: pageType=ObjectPage, entityType=SupplierInvoices
+2024-10-09T14:20:55.938Z [info] Step "ifListReportPage": case 0 blocked! Evaluation details:
+ - Variable "pageType" : "ObjectPage"
+2024-10-09T14:20:55.938Z [info] Step "ifListReportPage": no condition met - running default steps
+2024-10-09T14:21:01.095Z [info] 
+==========LLM call for step "extractSingleObjectPageOfMany":==========
+The user input below describes a Fiori Elements Application with the following pages:
+ - ListReport page for "PurchaseOrders"
+ - ObjectPage for "PurchaseOrders"
+ - ObjectPage for "SupplierInvoices"
+
+Your task is to find the details of the ObjectPage for "SupplierInvoices".
+The base entity of the ObjectPage is PurchaseOrders.
+This ObjectPage can contain tabs and/or sections which in turn contain tables and fields.
+It must contain table sections containing data for:
+ - associated entity "PurchaseOrderLineItems" (via association Items)
+ - associated entity "SupplierInvoices" (via association POorders);
+
+The underlying data model allows the following propertyPaths:
+ - SystemID: System ID (of Supplier Invoice)
+ - SupplierInvoiceNumber: Supplier Invoice Number (of Supplier Invoice)
+ - purchaseOrders/OrderNumber: Order Number (of single associated Purchase Order)
+ - purchaseOrders/OrderDate: Order Date (of single associated Purchase Order)
+ - purchaseOrders/TotalAmount: Total Amount (of single associated Purchase Order)
+ - purchaseOrders/Currency: Currency (of single associated Purchase Order)
+ - purchaseOrders/Status: Status (of single associated Purchase Order)
+ - Supplier/Name: Name (of single associated Supplier)
+ - Supplier/TaxId: Tax Id (of single associated Supplier)
+ - Supplier/Address: Address (of single associated Supplier)
+ - Supplier/ContactPerson: Contact Person (of single associated Supplier)
+ - Supplier/Email: Email (of single associated Supplier)
+ - Supplier/PhoneNumber: Phone Number (of single associated Supplier)
+
+You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
+
+"JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+
+For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}
+would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+
+Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+
+Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+```json
+{
+  "type": "object",
+  "properties": {
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "isTableSection": {
+            "type": "boolean",
+            "description": "if true, 'fields' represent columns of the table section and propertyPaths need to start with 1:n association"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "propertyPath"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "fields"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "subsections": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "list of sections ids relevant for the tab"
+          }
+        },
+        "required": [
+          "title",
+          "id",
+          "subsections"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "sections",
+    "tabs"
+  ],
+  "additionalProperties": false
+}
+```
+
+Output ONLY the json contents and try to be as accurate as comprehensive as possible.
+
+<UserInput>
+Generate an SAP Fiori elements application based on schema.cds
+</UserInput>
+
+----------Response:----------
+```json
+{
+  "sections": [
+    {
+      "title": "Purchase Order Line Items",
+      "id": "PurchaseOrderLineItemsSection",
+      "isTableSection": true,
+      "fields": [
+        "Items/ID",
+        "Items/description",
+        "Items/netAmount",
+        "Items/quantity",
+        "Items/unitPrice",
+        "Items/materialNumber",
+        "Items/SupplierMterialNumber",
+        "Items/SupplierQuantity",
+        "Items/SupplierUnitOfMeasure",
+        "Items/SupplierMaterialDesc",
+        "Items/SupplierPartNumber",
+        "Items/unitOfMeasure"
+      ]
+    },
+    {
+      "title": "Supplier Invoices",
+      "id": "SupplierInvoicesSection",
+      "isTableSection": true,
+      "fields": [
+        "POorders/ID",
+        "POorders/SystemID",
+        "POorders/SupplierInvoiceNumber",
+        "POorders/Supplier/Name",
+        "POorders/Supplier/TaxId",
+        "POorders/Supplier/Address",
+        "POorders/Supplier/ContactPerson",
+        "POorders/Supplier/Email",
+        "POorders/Supplier/PhoneNumber"
+      ]
+    }
+  ],
+  "tabs": [
+    {
+      "title": "Purchase Order Details",
+      "id": "PurchaseOrderDetailsTab",
+      "subsections": [
+        "PurchaseOrderLineItemsSection",
+        "SupplierInvoicesSection"
+      ]
+    }
+  ]
+}
+```
+2024-10-09T14:21:01.096Z [info] Step "ifCodeListsPresent": case 0 blocked! Evaluation details:
+ - JSONPath "$.model.entities[*].elements[*].values[*]" : []
+2024-10-09T14:21:01.096Z [info] 2/8: Build CDS files
+2024-10-09T14:21:01.626Z [info] 3/8: Checking staging project root folder "/home/user/.fioritools/fiori-tools-ai"
+2024-10-09T14:21:02.132Z [info] 4/8: Generating mock data
+2024-10-09T14:21:14.218Z [info] 
+==========LLM call for data generation:==========
+
+For the following list of entities, create data for the empty CSV files.
+Entity "PurchaseOrders" - Properties:
+    OrderNumber: String(20), Order number for the purchase order
+    OrderDate: Date, Date when the order was placed
+    TotalAmount: Decimal, Total amount for the purchase order
+    Currency: String, Currency for the total amount
+    Status: String(20), Status of the purchase order
+
+Entity "Suppliers" - Properties:
+    Name: String(100), Name of the supplier
+    TaxId: String(20), Tax ID of the supplier
+    Address: String(200), Address of the supplier
+    ContactPerson: String(100), Contact person at the supplier
+    Email: String(100), Email address of the supplier
+    PhoneNumber: String(20), Phone number of the supplier
+
+Entity "PurchaseOrderLineItems" - Properties:
+    document: String, Association to PurchaseOrders
+    description: String(200), Description of the line item
+    netAmount: Decimal, Net amount for the line item
+    quantity: Decimal, Quantity of the line item
+    unitPrice: Decimal, Unit price of the line item
+    materialNumber: String(50), Material number of the line item
+    SupplierMterialNumber: String(50), Supplier material number of the line item
+    SupplierQuantity: Decimal, Supplier quantity of the line item
+    SupplierUnitOfMeasure: String(10), Supplier unit of measure of the line item
+    SupplierMaterialDesc: String(50), Supplier material description of the line item
+    SupplierPartNumber: String(50), Supplier part number of the line item
+    unitOfMeasure: String(10), Unit of measure of the line item
+    purchaseOrders_OrderNumber: String(20), OrderNumber of associated PurchaseOrders
+
+Entity "SupplierInvoices" - Properties:
+    SystemID: Integer, System ID for the supplier invoice
+    SupplierInvoiceNumber: String(20), Supplier invoice number
+    purchaseOrders_OrderNumber: String(20), OrderNumber of associated PurchaseOrders
+    Supplier_Name: String(100), Name of associated Suppliers
+
+Empty CSV files in json format (only generate content for these files!):
+{"PurchaseOrders.csv":"OrderNumber;OrderDate;TotalAmount;Currency;Status","Suppliers.csv":"Name;TaxId;Address;ContactPerson;Email;PhoneNumber","PurchaseOrderLineItems.csv":"document;description;netAmount;quantity;unitPrice;materialNumber;SupplierMterialNumber;SupplierQuantity;SupplierUnitOfMeasure;SupplierMaterialDesc;SupplierPartNumber;unitOfMeasure;purchaseOrders_OrderNumber","SupplierInvoices.csv":"SystemID;SupplierInvoiceNumber;purchaseOrders_OrderNumber;Supplier_Name"}
+
+Rules:
+    - Take over the given header line, do not invent new columns!
+    - For a given file, add rows, add '\n' characters before each row but don't break the JSON string
+    - Do not generate rows with same key values, they must be unique!
+    - Make sure that associations match, i.e. a field containing "Name of the associated Customer" must contain an existing Name of entity Customer
+    - Always use ";" as a delimiter in CSV files
+    - The result must be proper JSON format so it can be parsed, don't break JSON strings within, don't add quotes around values.
+    - Create about 5 rows for the first csv, 7 for the second and so on
+    - All values must be realistic with meaningful content, e.g. 'Laptop Screen' and not just placeholder values with incremented numbers like 'Product 1', 'Product 2' etc.
+    
+Use format for values:
+  String(50): string no longer than 50 characters
+  Date: 2021-06-27
+  Decimal(3,2): 1.23
+  Integer, Double: only numbers, no special symbols
+    
+
+Example output (Do NOT include in output!):
+```json
+{"Blogs":"blogID;title;description;createdDateTime;views\nBlog1;Tech Blog;A blog about the latest technology trends.;2023-06-27T14:52:23Z;1000\nBlog2;Fashion Blog;Explore the world of fashion and style.;2023-06-27T14:52:23Z;500","Posts":"postID;title;content;publishDate;likes;comments;blogID\n1;The Future of Artificial Intelligence;Artificial intelligence is shaping the future of technology.;2023-06-27;50;10;Blog1
+2;Summer Fashion Trends;Discover the hottest fashion trends for the summer season.;2023-06-27;100;20;Blog2\n3;Must-Have Accessories;10 must-have accessories for the upcoming season;2023-06-27;100;20;Blog2"}
+```
+Output ONLY the json contents for the csv files and try to be as accurate as possible.    
+
+
+
+----------Response:----------
+```json
+{
+  "PurchaseOrders.csv": "OrderNumber;OrderDate;TotalAmount;Currency;Status\nPO12345;2023-01-15;1500.00;USD;Open\nPO12346;2023-02-20;2500.50;EUR;Closed\nPO12347;2023-03-10;3200.75;USD;Pending\nPO12348;2023-04-05;1800.00;GBP;Open\nPO12349;2023-05-22;2100.25;USD;Shipped",
+  "Suppliers.csv": "Name;TaxId;Address;ContactPerson;Email;PhoneNumber\nGlobal Supplies Inc;TAX123456;1234 Elm Street, Springfield;John Doe;john.doe@globalsupplies.com;123-456-7890\nTech Solutions Ltd;TAX654321;5678 Oak Avenue, Metropolis;Jane Smith;jane.smith@techsolutions.com;987-654-3210\nIndustrial Parts Co;TAX112233;9101 Maple Road, Gotham;Bruce Wayne;bruce.wayne@industrialparts.com;456-789-0123\nOffice Essentials;TAX445566;1213 Pine Street, Star City;Oliver Queen;oliver.queen@officeessentials.com;321-654-9870\nLogistics Partners;TAX778899;1415 Cedar Lane, Central City;Barry Allen;barry.allen@logisticspartners.com;654-321-0987\nConstruction Supplies;TAX998877;1617 Birch Boulevard, Coast City;Hal Jordan;hal.jordan@constructionsupplies.com;789-012-3456\nMedical Equipment Inc;TAX334455;1819 Spruce Drive, National City;Kara Danvers;kara.danvers@medicalequipment.com;012-345-6789",
+  "PurchaseOrderLineItems.csv": "document;description;netAmount;quantity;unitPrice;materialNumber;SupplierMterialNumber;SupplierQuantity;SupplierUnitOfMeasure;SupplierMaterialDesc;SupplierPartNumber;unitOfMeasure;purchaseOrders_OrderNumber\nPO12345;Laptop;1200.00;10;120.00;MAT123;SUPMAT123;10;PCS;Laptop Model X;SP123;PCS;PO12345\nPO12346;Office Chair;500.50;5;100.10;MAT124;SUPMAT124;5;PCS;Ergonomic Office Chair;SP124;PCS;PO12346\nPO12347;Printer;800.75;2;400.38;MAT125;SUPMAT125;2;PCS;Laser Printer;SP125;PCS;PO12347\nPO12348;Desk;600.00;3;200.00;MAT126;SUPMAT126;3;PCS;Wooden Desk;SP126;PCS;PO12348\nPO12349;Monitor;900.25;4;225.06;MAT127;SUPMAT127;4;PCS;4K Monitor;SP127;PCS;PO12349\nPO12345;Keyboard;300.00;15;20.00;MAT128;SUPMAT128;15;PCS;Mechanical Keyboard;SP128;PCS;PO12345\nPO12346;Mouse;200.50;20;10.03;MAT129;SUPMAT129;20;PCS;Wireless Mouse;SP129;PCS;PO12346",
+  "SupplierInvoices.csv": "SystemID;SupplierInvoiceNumber;purchaseOrders_OrderNumber;Supplier_Name\n1;INV12345;PO12345;Global Supplies Inc\n2;INV12346;PO12346;Tech Solutions Ltd\n3;INV12347;PO12347;Industrial Parts Co\n4;INV12348;PO12348;Office Essentials\n5;INV12349;PO12349;Logistics Partners\n6;INV12350;PO12345;Global Supplies Inc\n7;INV12351;PO12346;Tech Solutions Ltd"
+}
+```
+2024-10-09T14:21:14.220Z [info] 5/8: Initializing CAP project
+2024-10-09T14:21:15.122Z [info] 6/8: Copying files to CAP project
+2024-10-09T14:21:15.631Z [info] 7/8: Generating applications
+2024-10-09T14:22:06.219Z [info] 8/8: Installing node module dependencies

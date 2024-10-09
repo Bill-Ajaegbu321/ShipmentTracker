@@ -1,0 +1,8 @@
+ID;Name;TaxId;Address;ContactPerson;Email;PhoneNumber
+182ff474-9716-4ddb-87c3-ade6be5591ec;Global Supplies Inc;TAX123456;1234 Elm Street, Springfield;John Doe;john.doe@globalsupplies.com;123-456-7890
+92c0a2aa-b357-4c8f-ac07-d0d3ac92b2b7;Tech Solutions Ltd;TAX654321;5678 Oak Avenue, Metropolis;Jane Smith;jane.smith@techsolutions.com;987-654-3210
+cb62bada-dd16-4ec6-b95b-f206cbdc32d0;Industrial Parts Co;TAX112233;9101 Maple Road, Gotham;Bruce Wayne;bruce.wayne@industrialparts.com;456-789-0123
+34c76417-109c-4ddb-b869-da99813ca8d9;Office Essentials;TAX445566;1213 Pine Street, Star City;Oliver Queen;oliver.queen@officeessentials.com;321-654-9870
+e025ccd5-364c-4b22-b24f-ee091779c418;Logistics Partners;TAX778899;1415 Cedar Lane, Central City;Barry Allen;barry.allen@logisticspartners.com;654-321-0987
+d8d5a189-e487-44f9-958b-4a9397b5d954;Construction Supplies;TAX998877;1617 Birch Boulevard, Coast City;Hal Jordan;hal.jordan@constructionsupplies.com;789-012-3456
+658aaa37-ae29-42ab-b32d-533b1a7b8047;Medical Equipment Inc;TAX334455;1819 Spruce Drive, National City;Kara Danvers;kara.danvers@medicalequipment.com;012-345-6789

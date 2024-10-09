@@ -1,0 +1,1 @@
+Generate an SAP Fiori elements application based on schema.cds

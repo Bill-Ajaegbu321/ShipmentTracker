@@ -1,0 +1,1 @@
+using shippingregisterSrv as service from '../../srv/service';
